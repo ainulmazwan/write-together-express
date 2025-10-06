@@ -29,6 +29,8 @@ app.get("/", (req, res) => {
 
 // import routers
 app.use("/users", require("./routes/user"));
+app.use("/stories", require("./routes/story"));
+app.use("/genres", require("./routes/genre"));
 
 app.listen(5123, () => {
   console.log("server is running at http://localhost:5123");

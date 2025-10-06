@@ -11,7 +11,7 @@ const addStory = async (
   publishDate,
   votingWindow,
   deadline,
-  chapter1
+  chapters = []
 ) => {
   const newStory = new Story({
     title,
@@ -26,9 +26,13 @@ const addStory = async (
       startDate: publishDate,
       deadline,
     },
-    chapters: [chapter1],
+    chapters,
   });
 
   await newStory.save();
-  return { newStory };
+  return newStory;
+};
+
+module.exports = {
+  addStory,
 };
