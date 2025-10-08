@@ -6,20 +6,23 @@ const {
   getStoriesByAuthor,
   getStoryById,
   getStories,
+  updateStory,
 } = require("../controllers/story");
 const { addChapter } = require("../controllers/chapter");
 
 // add story
 router.post("/", async (req, res) => {
   try {
-    const title = req.body.title;
-    const description = req.body.description;
-    const genre = req.body.genre;
-    const author = req.body.author;
-    const publishDate = req.body.publishDate;
-    const votingWindow = req.body.votingWindow;
-    const deadline = req.body.deadline;
-    const chapterContent = req.body.chapterContent;
+    const {
+      title,
+      description,
+      genre,
+      author,
+      publishDate,
+      votingWindow,
+      deadline,
+      chapterContent,
+    } = req.body;
 
     const story = await addStory(
       title,
@@ -79,6 +82,20 @@ router.get("/", async (req, res) => {
     res.status(200).send(stories);
   } catch (error) {
     res.status(400).send({ message: error.message });
+  }
+});
+
+// update a story (ie. when deadline is past, add official chapter)
+router.put("/:id", async (req, res) => {
+  try {
+    const storyId = req.params.id;
+    const updates = req.body; // { title: "new title" etc }
+
+    const updatedStory = await updateStory(storyId, updates);
+
+    res.status(200).json(updatedStory);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 });
 

@@ -94,9 +94,76 @@ const getStories = async (genreId, sortBy) => {
   return stories;
 };
 
+// update story
+const updateStory = async (id, updates) => {
+  const updatedStory = await Story.findByIdAndUpdate(
+    id,
+    { $set: updates }, // updates is an object ie. {title: newTitle}
+    { new: true, runValidators: true }
+  );
+
+  if (!updatedStory) {
+    throw new Error("Story not found");
+  }
+
+  return updatedStory;
+};
+
+// advance the current round (called when deadline is past)
+const advanceRound = async (storyId) => {
+  const story = await Story.findById(storyId).populate(
+    "currentRound.submissions"
+  );
+  if (!story) throw new Error("Story not found");
+
+  const submissions = story.currentRound.submissions;
+
+  if (submissions.length > 0) {
+    // find submission with highest votes
+    const votesCount = await Promise.all(
+      // submissions.map(async()=>{}) returns an array of promises
+      submissions.map(async (sub) => {
+        const count = await Vote.countDocuments({ chapter: sub._id }); // count votes per sub
+        return { submission: sub, count }; // ie. { submission: [subId], 3}
+      })
+    );
+
+    const sortedVotesCount = votesCount.sort((a, b) => b.count - a.count); // descending
+    const winner = sortedVotesCount[0]?.submission; // get the first item (highest votes)
+
+    if (winner) {
+      // set winner as official chapter
+      winner.isOfficial = true;
+      await winner.save();
+      story.chapters.push(winner._id);
+      // only increase chapterNumber if winner is selected
+      story.currentRound.chapterNumber += 1;
+    }
+
+    // reset submissions array
+    story.currentRound.submissions = [];
+  } else {
+    // if no submissions
+    story.status = "hiatus";
+  }
+
+  // update deadline, even the ones on hiatus (in case they want to resume)
+  story.currentRound.deadline = new Date(
+    Date.now() + story.votingWindow * 24 * 60 * 60 * 1000
+  );
+
+  // delete all votes from this round
+  await Vote.deleteMany({ story: story._id });
+
+  await story.save();
+  return story;
+};
+
 module.exports = {
   addStory,
   getStoryById,
   getStoriesByAuthor,
   getStories,
+  updateStory,
+  advanceRound,
 };

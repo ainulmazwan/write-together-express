@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { addGenre } = require("../controllers/genre");
 
-// add story
+// add genre
 router.post("/add", async (req, res) => {
   try {
     const name = req.body.name;
