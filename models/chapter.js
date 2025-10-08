@@ -16,6 +16,10 @@ const chapterSchema = new Schema(
       ref: "User",
       required: true,
     },
+    chapterNumber: {
+      type: Number,
+      required: true,
+    },
     isOfficial: {
       type: Boolean,
       required: true,

@@ -10,7 +10,7 @@ const {
 const { addChapter } = require("../controllers/chapter");
 
 // add story
-router.post("/add", async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     const title = req.body.title;
     const description = req.body.description;

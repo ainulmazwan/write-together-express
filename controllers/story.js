@@ -39,6 +39,13 @@ const getStoryById = async (id) => {
     .populate("author", "name")
     // populate chapter author's name + all chapter fields
     .populate({
+      path: "currentRound.submissions",
+      populate: {
+        path: "author",
+        select: "name",
+      },
+    })
+    .populate({
       path: "chapters",
       populate: { path: "author", select: "name" },
     })
@@ -56,19 +63,21 @@ const getStoriesByAuthor = async (authorId) => {
     "name"
   );
 
-  if (!stories || stories.length === 0) {
-    throw new Error("No stories created yet");
-  }
   return stories;
 };
 
-// get ALL stories (with filtering, sorting)
+// get ALL published stories (with filtering, sorting)
 const getStories = async (genreId, sortBy) => {
   const filters = {};
 
   if (genreId && genreId !== "all") {
     filters.genre = genreId;
   }
+
+  // show only published stories
+  // publishdate in the past or now
+  const now = new Date();
+  filters.publishDate = { $lte: now };
 
   // prepare query
   let query = Story.find(filters).populate("author", "name");
