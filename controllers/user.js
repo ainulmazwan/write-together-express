@@ -2,6 +2,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
+const Vote = require("../models/vote");
+const Story = require("../models/story");
+const Chapter = require("../models/chapter");
 
 const getUserByEmail = async (email) => {
   return await User.findOne({ email: email });
@@ -146,6 +149,52 @@ const getFavouritedStories = async (userId) => {
   return user.favourites;
 };
 
+// get all users (admin only)
+const getUsers = async () => {
+  const users = await User.find({
+    role: { $ne: "system" }, // role !== "system" // system is deleted user
+  });
+  return users;
+};
+
+// ADMIN ONLY
+// delete user
+const deleteUser = async (userId) => {
+  // remove user's votes
+  await Vote.deleteMany({ user: userId });
+
+  const DELETED_USER_ID = "68e7b5b00fad7a2345ed7014"
+
+  // unlink user's stories and chapters
+  await Story.updateMany(
+    { author: userId },
+    { $set: { author: DELETED_USER_ID } } // deleted user
+  );
+  await Chapter.updateMany(
+    { author: userId },
+    { $set: { author: DELETED_USER_ID } }
+  );
+
+  // remove user account
+  const deletedUser = await User.findByIdAndDelete(userId);
+
+  if (!deletedUser) {
+    throw new Error("User not found");
+  }
+
+  return deletedUser;
+};
+
+// admin & account owner can use this function
+const updateUser = async (userId, updates) => {
+  console.log(updates);
+  const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+    new: true,
+  });
+
+  return updatedUser;
+};
+
 module.exports = {
   signup,
   login,
@@ -154,4 +203,7 @@ module.exports = {
   addToFavourites,
   removeFromFavourites,
   getFavouritedStories,
+  deleteUser,
+  getUsers,
+  updateUser,
 };

@@ -7,9 +7,12 @@ const {
   getUserById,
   addToFavourites,
   removeFromFavourites,
-  getFavouritedStories
+  getFavouritedStories,
+  getUsers,
+  updateUser,
+  deleteUser
 } = require("../controllers/user");
-
+const { isAdmin, isValidUser } = require("../middleware/auth");
 // signup
 router.post("/signup", async (req, res) => {
   try {
@@ -78,6 +81,42 @@ router.get("/:id/favourites", async (req, res) => {
     const { id } = req.params;
     const favourites = await getFavouritedStories(id);
     res.status(200).send(favourites);
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+});
+
+// get ALL users
+router.get("/", isAdmin, async (req, res) => {
+  try {
+    const users = await getUsers();
+    res.status(200).send(users);
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+});
+
+router.put("/:id", isValidUser, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updates = req.body;
+    if (req.user.role !== "admin" && updates.role) {
+      // cannot change role if current user is not admin
+      delete updates.role;
+    }
+    const updatedUser = await updateUser(id, updates);
+    res.status(200).send(updatedUser);
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+});
+
+router.delete("/:id", isAdmin, async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const deletedUser = await deleteUser(id);
+    res.status(200).send(deletedUser);
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
