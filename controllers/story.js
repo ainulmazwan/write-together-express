@@ -68,27 +68,27 @@ const getStoriesByAuthor = async (authorId) => {
 };
 
 // get ALL published stories (with filtering, sorting)
-const getStories = async (genreId, sortBy) => {
+const getStories = async (genreId, status, search) => {
   const filters = {};
-
-  if (genreId && genreId !== "all") {
-    filters.genre = genreId;
-  }
 
   // show only published stories
   // publishdate in the past or now
   const now = new Date();
   filters.publishDate = { $lte: now };
+  if (genreId) {
+    filters.genre = genreId;
+  }
+  if (status) {
+    filters.status = status;
+  }
+
+  if (search && search !== "") {
+    const regex = new RegExp(search, "i"); // i = case insensitive
+    filters.$or = [{ title: { $regex: regex } }];
+  }
 
   // prepare query
   let query = Story.find(filters).populate("author", "name");
-
-  // handle sorting
-  if (sortBy === "alphabetical") {
-    query = query.sort({ title: 1 }); // ascending by title
-  } else if (sortBy === "newest") {
-    query = query.sort({ createdAt: -1 }); // newest first
-  }
 
   // execute query
   const stories = await query;

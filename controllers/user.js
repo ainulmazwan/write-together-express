@@ -126,7 +126,18 @@ const removeFromFavourites = async (userId, storyId) => {
 
 // get favourited stories
 const getFavouritedStories = async (userId) => {
-  const user = await User.findById(userId).populate("favourites");
+  const user = await User.findById(userId)
+    .populate("favourites")
+    .populate({
+      path: "favourites",
+      select: "title author",
+      // populate name of author inside of story
+      populate: {
+        path: "author",
+        model: "User",
+        select: "name",
+      },
+    });
 
   if (!user) {
     throw new Error();
@@ -142,5 +153,5 @@ module.exports = {
   getUserById,
   addToFavourites,
   removeFromFavourites,
-  getFavouritedStories
+  getFavouritedStories,
 };

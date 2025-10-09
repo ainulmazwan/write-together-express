@@ -13,7 +13,7 @@ const addChapter = async (storyId, content, author, isOfficial) => {
       story: storyId,
       author: author,
       isOfficial: false,
-      chapterNumber: story.currentRound.chapterNumber
+      chapterNumber: story.currentRound.chapterNumber,
     });
 
     if (existingSubmissions.length > 0) {
@@ -53,9 +53,16 @@ const getChapter = async (id) => {
 
 // get all chapters by a specific user
 const getChaptersByAuthor = async (authorId) => {
-  const chapters = await Chapter.find({ author: authorId })
-    .populate("story", "title")
-    .populate("author", "name");
+  const chapters = await Chapter.find({ author: authorId }).populate({
+    path: "story",
+    select: "title author",
+    // populate name of author inside of story
+    populate: {
+      path: "author",
+      model: "User",
+      select: "name",
+    },
+  });
   return chapters;
 };
 

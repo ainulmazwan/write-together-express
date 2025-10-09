@@ -77,9 +77,9 @@ router.get("/author/:authorId", async (req, res) => {
 // get ALL stories
 router.get("/", async (req, res) => {
   try {
-    const genreId = req.query.genreId;
-    const sortBy = req.query.sortBy;
-    const stories = await getStories(genreId, sortBy);
+    const { genre, status, search } = req.query;
+    const stories = await getStories(genre, status, search);
+    console.log(stories);
     res.status(200).send(stories);
   } catch (error) {
     res.status(400).send({ message: error.message });

@@ -7,7 +7,7 @@ const {
   getUserById,
   addToFavourites,
   removeFromFavourites,
-  getFavouritedStories,
+  getFavouritedStories
 } = require("../controllers/user");
 
 // signup
