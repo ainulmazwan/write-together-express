@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const Story = require("../models/story");
+const Vote = require("../models/vote");
 
 // add story
 const addStory = async (
@@ -116,6 +117,12 @@ const advanceRound = async (storyId) => {
   );
   if (!story) throw new Error("Story not found");
 
+  // check if deadline hasnt passed yet
+  const now = new Date();
+  if (now < new Date(story.currentRound.deadline)) {
+    return story;
+  }
+
   const submissions = story.currentRound.submissions;
 
   if (submissions.length > 0) {
@@ -147,9 +154,14 @@ const advanceRound = async (storyId) => {
     story.status = "hiatus";
   }
 
+  // start date of new round
+  const prevDeadline = new Date(story.currentRound.deadline);
+  story.currentRound.startDate = prevDeadline;
+
   // update deadline, even the ones on hiatus (in case they want to resume)
   story.currentRound.deadline = new Date(
-    Date.now() + story.votingWindow * 24 * 60 * 60 * 1000
+    new Date(story.currentRound.deadline).getTime() +
+      story.votingWindow * 24 * 60 * 60 * 1000
   );
 
   // delete all votes from this round

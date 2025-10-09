@@ -21,7 +21,6 @@ router.post("/", async (req, res) => {
 
     // update submissions array in story
     const story = await getStoryById(storyId);
-    console.log(story);
     story.currentRound.submissions.push(chapter._id);
     await story.save();
 

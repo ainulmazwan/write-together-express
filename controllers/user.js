@@ -89,6 +89,8 @@ const getUserById = async (id) => {
   return user;
 };
 
+// add to favourites
+
 module.exports = {
   signup,
   login,

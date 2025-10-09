@@ -7,6 +7,7 @@ const {
   getStoryById,
   getStories,
   updateStory,
+  advanceRound,
 } = require("../controllers/story");
 const { addChapter } = require("../controllers/chapter");
 
@@ -85,15 +86,14 @@ router.get("/", async (req, res) => {
   }
 });
 
-// update a story (ie. when deadline is past, add official chapter)
-router.put("/:id", async (req, res) => {
+// advance a story (ie. when deadline is past, add official chapter)
+router.put("/advance/:storyId", async (req, res) => {
   try {
-    const storyId = req.params.id;
-    const updates = req.body; // { title: "new title" etc }
+    const storyId = req.params.storyId;
 
-    const updatedStory = await updateStory(storyId, updates);
+    const advancedStory = await advanceRound(storyId);
 
-    res.status(200).json(updatedStory);
+    res.status(200).json(advancedStory);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
