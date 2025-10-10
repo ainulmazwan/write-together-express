@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const Story = require("../models/story");
+const Chapter = require("../models/chapter");
 const Vote = require("../models/vote");
 
 // add story
@@ -87,6 +88,9 @@ const getStories = async (genreId, status, search) => {
     filters.$or = [{ title: { $regex: regex } }];
   }
 
+  // dont include deleted story
+  filters._id = { $ne: process.env.DELETED_STORY_ID };
+
   // prepare query
   let query = Story.find(filters).populate("author", "name");
 
@@ -108,6 +112,22 @@ const updateStory = async (id, updates) => {
   }
 
   return updatedStory;
+};
+
+// delete story
+const deleteStory = async (id) => {
+  console.log(process.env.DELETED_STORY_ID);
+  await Chapter.updateMany(
+    { story: id },
+    { $set: { story: process.env.DELETED_STORY_ID } }
+  );
+
+  const story = await Story.findByIdAndDelete(id);
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
+  return story;
 };
 
 // advance the current round (called when deadline is past)
@@ -178,4 +198,5 @@ module.exports = {
   getStories,
   updateStory,
   advanceRound,
+  deleteStory,
 };

@@ -8,6 +8,7 @@ const {
   getStories,
   updateStory,
   advanceRound,
+  deleteStory,
 } = require("../controllers/story");
 const { addChapter } = require("../controllers/chapter");
 const { isValidUser } = require("../middleware/auth");
@@ -104,8 +105,18 @@ router.put("/:id", isValidUser, async (req, res) => {
   try {
     const id = req.params.id;
     const updates = req.body;
-    console.log("Updates:", req.body);
     const story = await updateStory(id, updates);
+    res.status(200).send(story);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+// delete story
+router.delete("/:id", isValidUser, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const story = await deleteStory(id);
     res.status(200).send(story);
   } catch (error) {
     res.status(400).send({ error: error.message });
