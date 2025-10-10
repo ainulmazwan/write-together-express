@@ -15,7 +15,6 @@ const isValidUser = async (req, res, next) => {
       res.status(400).send({ error: "YOU SHALL NOT PASS" });
     }
   } catch (error) {
-    console.log(error);
     res.status(400).send({ error: "YOU SHALL NOT PASS" });
   }
 };

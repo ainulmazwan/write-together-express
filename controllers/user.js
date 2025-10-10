@@ -163,7 +163,7 @@ const deleteUser = async (userId) => {
   // remove user's votes
   await Vote.deleteMany({ user: userId });
 
-  const DELETED_USER_ID = "68e7b5b00fad7a2345ed7014"
+  const DELETED_USER_ID = "68e7b5b00fad7a2345ed7014";
 
   // unlink user's stories and chapters
   await Story.updateMany(
@@ -187,7 +187,10 @@ const deleteUser = async (userId) => {
 
 // admin & account owner can use this function
 const updateUser = async (userId, updates) => {
-  console.log(updates);
+  if (updates.password) {
+    updates.password = bcrypt.hashSync(updates.password, 10);
+  }
+
   const updatedUser = await User.findByIdAndUpdate(userId, updates, {
     new: true,
   });

@@ -1,4 +1,5 @@
 const Vote = require("../models/vote");
+const Story = require("../models/story");
 
 const getVote = async (userId, storyId) => {
   const vote = await Vote.findOne({
@@ -17,6 +18,15 @@ const getVotesForSubmission = async (submissionId) => {
 };
 
 const addVote = async (userId, chapterId, storyId) => {
+  const story = await Story.findById(storyId);
+
+  // check if story deadline has passed
+  const now = new Date();
+  const deadline = new Date(story.currentRound.deadline);
+  if (now > deadline) {
+    throw new Error("Voting period has ended for this round.");
+  }
+
   // check if user already voted for this story/round
   const existingVote = await Vote.findOne({ user: userId, story: storyId });
   if (existingVote) {

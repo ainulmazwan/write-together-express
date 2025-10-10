@@ -13,7 +13,6 @@ router.get("/user/:userId/story/:storyId", async (req, res) => {
   try {
     const { userId, storyId } = req.params;
     const vote = await getVote(userId, storyId);
-    console.log(vote);
     res.status(200).send(vote);
   } catch (error) {
     res.status(400).send({ message: error.message });

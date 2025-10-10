@@ -10,6 +10,7 @@ const {
   advanceRound,
 } = require("../controllers/story");
 const { addChapter } = require("../controllers/chapter");
+const { isValidUser } = require("../middleware/auth");
 
 // add story
 router.post("/", async (req, res) => {
@@ -79,7 +80,6 @@ router.get("/", async (req, res) => {
   try {
     const { genre, status, search } = req.query;
     const stories = await getStories(genre, status, search);
-    console.log(stories);
     res.status(200).send(stories);
   } catch (error) {
     res.status(400).send({ message: error.message });
@@ -93,9 +93,22 @@ router.put("/advance/:storyId", async (req, res) => {
 
     const advancedStory = await advanceRound(storyId);
 
-    res.status(200).json(advancedStory);
+    res.status(200).send(advancedStory);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).send({ error: error.message });
+  }
+});
+
+// update a story
+router.put("/:id", isValidUser, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const updates = req.body;
+    console.log("Updates:", req.body);
+    const story = await updateStory(id, updates);
+    res.status(200).send(story);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
   }
 });
 
