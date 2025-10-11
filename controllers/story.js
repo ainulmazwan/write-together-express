@@ -203,7 +203,7 @@ const endStory = async (storyId) => {
   return story;
 };
 
-export const resumeStory = async (id) => {
+const resumeStory = async (id) => {
   const story = await Story.findById(id);
 
   if (!story) {
@@ -218,9 +218,9 @@ export const resumeStory = async (id) => {
   // update currentRound’s timing
   const votingWindow = story.votingWindow * 24 * 60 * 60 * 1000;
 
-  story.currentRound.deadline = new Date(
-    story.currentRound.startDate + votingWindowMinutes
-  );
+  const startDate = new Date(story.currentRound.startDate);
+
+  story.currentRound.deadline = new Date(startDate.getTime() + votingWindow);
 
   await story.save();
   return story;
@@ -235,4 +235,5 @@ module.exports = {
   advanceRound,
   deleteStory,
   endStory,
+  resumeStory,
 };
