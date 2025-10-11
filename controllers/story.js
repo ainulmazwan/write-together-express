@@ -1,5 +1,3 @@
-const jwt = require("jsonwebtoken");
-
 const Story = require("../models/story");
 const Chapter = require("../models/chapter");
 const Vote = require("../models/vote");
@@ -116,7 +114,6 @@ const updateStory = async (id, updates) => {
 
 // delete story
 const deleteStory = async (id) => {
-  console.log(process.env.DELETED_STORY_ID);
   await Chapter.updateMany(
     { story: id },
     { $set: { story: process.env.DELETED_STORY_ID } }
@@ -191,6 +188,44 @@ const advanceRound = async (storyId) => {
   return story;
 };
 
+const endStory = async (storyId) => {
+  const story = await Story.findById(storyId);
+
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
+  story.status = "completed";
+  story.currentRound.deadline = new Date();
+
+  await story.save();
+
+  return story;
+};
+
+export const resumeStory = async (id) => {
+  const story = await Story.findById(id);
+
+  if (!story) {
+    throw new Error("Story not found");
+  }
+  if (story.status !== "hiatus") {
+    throw new Error("Story is not on hiatus");
+  }
+
+  story.status = "ongoing";
+
+  // update currentRound’s timing
+  const votingWindow = story.votingWindow * 24 * 60 * 60 * 1000;
+
+  story.currentRound.deadline = new Date(
+    story.currentRound.startDate + votingWindowMinutes
+  );
+
+  await story.save();
+  return story;
+};
+
 module.exports = {
   addStory,
   getStoryById,
@@ -199,4 +234,5 @@ module.exports = {
   updateStory,
   advanceRound,
   deleteStory,
+  endStory,
 };
