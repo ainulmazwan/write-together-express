@@ -6,8 +6,11 @@ const {
   getChaptersByAuthor,
   getSubmissionsForCurrentRound,
   addChapter,
+  updateChapter,
+  deleteChapter,
 } = require("../controllers/chapter");
 const { getStoryById } = require("../controllers/story");
+const { isValidUser } = require("../middleware/auth");
 
 // add submission/chapter
 router.post("/", async (req, res) => {
@@ -58,6 +61,29 @@ router.get("/story/:storyId", async (req, res) => {
     const storyId = req.params.storyId;
     const submissions = await getSubmissionsForCurrentRound(storyId);
     res.status(200).send(submissions);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+// update chapter
+router.put("/:id", isValidUser, async (req, res) => {
+  try {
+    const chapterId = req.params.id;
+    const updates = req.body;
+    const updatedChapter = await updateChapter(chapterId, updates);
+    res.status(200).send(updatedChapter);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+// delete chapter
+router.delete("/:id", isValidUser, async (req, res) => {
+  try {
+    const chapterId = req.params.id;
+    await deleteChapter(chapterId);
+    res.status(200).send({ message: "Chapter has been deleted" });
   } catch (error) {
     res.status(400).send({ error: error.message });
   }

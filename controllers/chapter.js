@@ -1,5 +1,6 @@
 const Chapter = require("../models/chapter");
 const Story = require("../models/story");
+const Vote = require("../models/vote");
 
 const addChapter = async (storyId, content, author, isOfficial) => {
   // check if user has added a submission before (if this is not chapter 1)
@@ -79,9 +80,48 @@ const getSubmissionsForCurrentRound = async (storyId) => {
   return story.currentRound.submissions;
 };
 
+// update chapter
+const updateChapter = async (id, updates) => {
+  const chapter = await Chapter.findByIdAndUpdate(id, updates, { new: true });
+  if (!chapter) {
+    throw new Error("Chapter not found");
+  }
+  return chapter;
+};
+
+// delete chapter
+const deleteChapter = async (id) => {
+  const chapter = await Chapter.findById(id);
+  console.log(chapter);
+  if (!chapter) {
+    throw new Error("Chapter not found");
+  }
+
+  // update connected stories' chapters array to have deleted chapter id instead
+  await Story.updateMany(
+    { chapters: id }, // find story with chapters array that has this id
+    { $set: { "chapters.$": process.env.DELETED_CHAPTER_ID } } // chapters.$ = position of element that has this id
+  );
+
+  // path strings need quotes - ie. "currentRound.submissions":
+
+  // update connected stories' submissions array if chapter is a submission
+  await Story.updateMany(
+    { "currentRound.submissions": id },
+    { $pull: { "currentRound.submissions": id } } // $pull = removes from array the element that matches requirements
+  );
+
+  // delete votes related to this chapter
+  await Vote.deleteMany({ chapter: id });
+
+  return await Chapter.findByIdAndDelete(id);
+};
+
 module.exports = {
   addChapter,
   getChapter,
   getChaptersByAuthor,
   getSubmissionsForCurrentRound,
+  updateChapter,
+  deleteChapter,
 };
