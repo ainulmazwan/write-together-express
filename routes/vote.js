@@ -8,8 +8,10 @@ const {
   removeVote,
 } = require("../controllers/vote");
 
-// get a specific vote for a specific story by a specific user (omg)
-router.get("/user/:userId/story/:storyId", async (req, res) => {
+const { isValidUser } = require("../middleware/auth");
+
+// get a specific vote for a specific story by a specific user (omg) (only logged in)
+router.get("/user/:userId/story/:storyId", isValidUser, async (req, res) => {
   try {
     const { userId, storyId } = req.params;
     const vote = await getVote(userId, storyId);
@@ -33,7 +35,8 @@ router.get("/chapter/:submissionId", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+// for logged in only
+router.post("/", isValidUser, async (req, res) => {
   try {
     const { userId, chapterId, storyId } = req.body;
 
@@ -45,7 +48,8 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.delete("/", async (req, res) => {
+// logged in only
+router.delete("/", isValidUser, async (req, res) => {
   try {
     const { userId, chapterId } = req.body;
     const vote = await removeVote(userId, chapterId);

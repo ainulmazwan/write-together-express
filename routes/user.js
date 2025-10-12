@@ -10,9 +10,10 @@ const {
   getFavouritedStories,
   getUsers,
   updateUser,
-  deleteUser
+  deleteUser,
 } = require("../controllers/user");
 const { isAdmin, isValidUser } = require("../middleware/auth");
+
 // signup
 router.post("/signup", async (req, res) => {
   try {
@@ -51,8 +52,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// add to favourites
-router.post("/:id/favourites/:storyId", async (req, res) => {
+// add to favourites (only logged in)
+router.post("/:id/favourites/:storyId", isValidUser, async (req, res) => {
   try {
     const { id, storyId } = req.params;
     const user = await addToFavourites(id, storyId);
@@ -63,8 +64,8 @@ router.post("/:id/favourites/:storyId", async (req, res) => {
   }
 });
 
-// remove from favourites
-router.delete("/:id/favourites/:storyId", async (req, res) => {
+// remove from favourites (only logged in)
+router.delete("/:id/favourites/:storyId", isValidUser, async (req, res) => {
   try {
     const { id, storyId } = req.params;
     const user = await removeFromFavourites(id, storyId);
@@ -75,8 +76,8 @@ router.delete("/:id/favourites/:storyId", async (req, res) => {
   }
 });
 
-// get favourited stories
-router.get("/:id/favourites", async (req, res) => {
+// get favourited stories (profile view / logged in only)
+router.get("/:id/favourites", isValidUser, async (req, res) => {
   try {
     const { id } = req.params;
     const favourites = await getFavouritedStories(id);

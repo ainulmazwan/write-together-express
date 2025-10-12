@@ -13,7 +13,7 @@ const { getStoryById } = require("../controllers/story");
 const { isValidUser } = require("../middleware/auth");
 
 // add submission/chapter
-router.post("/", async (req, res) => {
+router.post("/", isValidUser, async (req, res) => {
   try {
     const storyId = req.body.storyId;
     const content = req.body.content;
@@ -44,8 +44,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// get all chapters by a user
-router.get("/author/:authorId", async (req, res) => {
+// get all chapters by a user (for profile view)
+router.get("/author/:authorId", isValidUser, async (req, res) => {
   try {
     const authorId = req.params.authorId;
     const chapters = await getChaptersByAuthor(authorId);

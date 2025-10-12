@@ -16,7 +16,7 @@ const { addChapter } = require("../controllers/chapter");
 const { isValidUser } = require("../middleware/auth");
 
 // add story
-router.post("/", async (req, res) => {
+router.post("/", isValidUser, async (req, res) => {
   try {
     const {
       title,
@@ -66,8 +66,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// get stories by author
-router.get("/author/:authorId", async (req, res) => {
+// get stories by author (for profile view / logged in users)
+router.get("/author/:authorId", isValidUser, async (req, res) => {
   try {
     const authorId = req.params.authorId;
     const stories = await getStoriesByAuthor(authorId);

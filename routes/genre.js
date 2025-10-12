@@ -8,8 +8,10 @@ const {
   deleteGenre,
 } = require("../controllers/genre");
 
+const { isAdmin } = require("../middleware/auth");
+
 // add genre
-router.post("/", async (req, res) => {
+router.post("/", isAdmin, async (req, res) => {
   try {
     const name = req.body.name;
 
@@ -33,7 +35,7 @@ router.get("/", async (req, res) => {
 });
 
 // edit genre
-router.put("/:id", async (req, res) => {
+router.put("/:id", isAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     const name = req.body.name;
@@ -44,7 +46,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", isAdmin, async (req, res) => {
   try {
     const id = req.params.id;
     const genre = await deleteGenre(id);
