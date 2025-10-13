@@ -1,6 +1,7 @@
 const Story = require("../models/story");
 const Chapter = require("../models/chapter");
 const Vote = require("../models/vote");
+const User = require("../models/user");
 
 // add story
 const addStory = async (
@@ -67,7 +68,7 @@ const getStoriesByAuthor = async (authorId) => {
 };
 
 // get ALL published stories (with filtering, sorting)
-const getStories = async (genreId, status, search) => {
+const getStories = async (genreId, status, search, sortBy) => {
   const filters = {};
 
   // show only published stories
@@ -90,7 +91,18 @@ const getStories = async (genreId, status, search) => {
   filters._id = { $ne: process.env.DELETED_STORY_ID };
 
   // prepare query
-  let query = Story.find(filters).populate("author", "name");
+  let query = Story.find(filters)
+    .populate("author", "name")
+    .populate("genre", "name");
+
+  if (sortBy === "newest") {
+    query.sort({ createdAt: -1 }); // newest first (date in descending order)
+  } else if (sortBy === "alphabetical") {
+    query = query.sort({ title: 1 }).collation({ locale: "en", strength: 2 });
+    // sort using english rules, strength:2 means ignore case sensitivity (ie. A = a)
+  } else if (sortBy === "popular") {
+    query = query.sort({ views: -1 });
+  }
 
   // execute query
   const stories = await query;
@@ -118,6 +130,8 @@ const deleteStory = async (id) => {
     { story: id },
     { $set: { story: process.env.DELETED_STORY_ID } }
   );
+
+  await User.updateMany({ favourites: id }, { $pull: { favourites: id } });
 
   const story = await Story.findByIdAndDelete(id);
   if (!story) {
@@ -226,6 +240,16 @@ const resumeStory = async (id) => {
   return story;
 };
 
+// increment views
+const incrementViews = async (id) => {
+  const story = await Story.findByIdAndUpdate(
+    id,
+    { $inc: { views: 1 } },
+    { new: true }
+  );
+  return story;
+};
+
 module.exports = {
   addStory,
   getStoryById,
@@ -236,4 +260,5 @@ module.exports = {
   deleteStory,
   endStory,
   resumeStory,
+  incrementViews,
 };

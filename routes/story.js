@@ -11,6 +11,7 @@ const {
   deleteStory,
   endStory,
   resumeStory,
+  incrementViews,
 } = require("../controllers/story");
 const { addChapter } = require("../controllers/chapter");
 const { isValidUser } = require("../middleware/auth");
@@ -81,8 +82,8 @@ router.get("/author/:authorId", isValidUser, async (req, res) => {
 // get ALL stories
 router.get("/", async (req, res) => {
   try {
-    const { genre, status, search } = req.query;
-    const stories = await getStories(genre, status, search);
+    const { genre, status, search, sortBy } = req.query;
+    const stories = await getStories(genre, status, search, sortBy);
     res.status(200).send(stories);
   } catch (error) {
     res.status(400).send({ message: error.message });
@@ -141,6 +142,17 @@ router.put("/:id/resume", isValidUser, async (req, res) => {
   try {
     const id = req.params.id;
     const story = await resumeStory(id);
+    res.status(200).send(story);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+// increment views
+router.put("/:id/view", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const story = await incrementViews(id);
     res.status(200).send(story);
   } catch (error) {
     res.status(400).send({ error: error.message });

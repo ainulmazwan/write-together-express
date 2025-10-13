@@ -133,13 +133,20 @@ const getFavouritedStories = async (userId) => {
     .populate("favourites")
     .populate({
       path: "favourites",
-      select: "title author",
+      select: "title author status genre createdAt views",
       // populate name of author inside of story
-      populate: {
-        path: "author",
-        model: "User",
-        select: "name",
-      },
+      populate: [
+        {
+          path: "author",
+          model: "User",
+          select: "name",
+        },
+        {
+          path: "genre",
+          model: "Genre",
+          select: "name",
+        },
+      ],
     });
 
   if (!user) {

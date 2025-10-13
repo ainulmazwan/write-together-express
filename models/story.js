@@ -29,6 +29,7 @@ const storySchema = new Schema(
       type: Number,
       required: true,
     },
+    // object
     currentRound: {
       chapterNumber: { type: Number, required: true },
       submissions: [
@@ -49,6 +50,7 @@ const storySchema = new Schema(
       enum: ["ongoing", "hiatus", "completed"],
       default: "ongoing",
     },
+    views: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
