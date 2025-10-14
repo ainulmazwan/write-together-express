@@ -23,16 +23,16 @@ async function connectToMongoDB() {
 
 connectToMongoDB();
 
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.send("Testing");
 });
 
 // import routers
-app.use("/users", require("./routes/user"));
-app.use("/stories", require("./routes/story"));
-app.use("/genres", require("./routes/genre"));
-app.use("/chapters", require("./routes/chapter"));
-app.use("/votes", require("./routes/vote"));
+app.use("/api/users", require("./routes/user"));
+app.use("/api/stories", require("./routes/story"));
+app.use("/api/genres", require("./routes/genre"));
+app.use("/api/chapters", require("./routes/chapter"));
+app.use("/api/votes", require("./routes/vote"));
 
 app.listen(5123, () => {
   console.log("server is running at http://localhost:5123");

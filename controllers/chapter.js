@@ -2,6 +2,8 @@ const Chapter = require("../models/chapter");
 const Story = require("../models/story");
 const Vote = require("../models/vote");
 
+
+// CREATE
 const addChapter = async (storyId, content, author, isOfficial) => {
   // check if user has added a submission before (if this is not chapter 1)
   const story = await Story.findById(storyId);
@@ -40,6 +42,8 @@ const addChapter = async (storyId, content, author, isOfficial) => {
   return newChapter;
 };
 
+
+// READ
 // get a specific chapter
 const getChapter = async (id) => {
   const chapter = await Chapter.findById(id)
@@ -80,6 +84,8 @@ const getSubmissionsForCurrentRound = async (storyId) => {
   return story.currentRound.submissions;
 };
 
+
+// UPDATE
 // update chapter
 const updateChapter = async (id, updates) => {
   const chapter = await Chapter.findByIdAndUpdate(id, updates, { new: true });
@@ -89,10 +95,11 @@ const updateChapter = async (id, updates) => {
   return chapter;
 };
 
+
+// DELETE
 // delete chapter
 const deleteChapter = async (id) => {
   const chapter = await Chapter.findById(id);
-  console.log(chapter);
   if (!chapter) {
     throw new Error("Chapter not found");
   }

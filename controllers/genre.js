@@ -1,6 +1,7 @@
 const Genre = require("../models/genre");
 const Story = require("../models/story");
 
+// CREATE
 const addGenre = async (name) => {
   const newGenre = new Genre({
     name,
@@ -10,17 +11,21 @@ const addGenre = async (name) => {
   return newGenre;
 };
 
+// READ
 const getGenres = async () => {
   const genres = await Genre.find();
   return genres;
 };
 
+// UPDATE
 const editGenre = async (id, name) => {
   const genre = await Genre.findByIdAndUpdate(id, {
     name: name,
   });
   return genre;
 };
+
+// DELETE
 const deleteGenre = async (id) => {
   // check if any stories use this genre
   const storiesWithGenre = await Story.find({ genre: id });
@@ -40,5 +45,5 @@ module.exports = {
   addGenre,
   getGenres,
   editGenre,
-  deleteGenre
+  deleteGenre,
 };

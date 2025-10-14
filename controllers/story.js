@@ -3,6 +3,7 @@ const Chapter = require("../models/chapter");
 const Vote = require("../models/vote");
 const User = require("../models/user");
 
+// CREATE
 // add story
 const addStory = async (
   title,
@@ -34,6 +35,7 @@ const addStory = async (
   return newStory;
 };
 
+// READ
 // get a specific story
 const getStoryById = async (id) => {
   const story = await Story.findById(id)
@@ -101,7 +103,7 @@ const getStories = async (genreId, status, search, sortBy) => {
     query = query.sort({ title: 1 }).collation({ locale: "en", strength: 2 });
     // sort using english rules, strength:2 means ignore case sensitivity (ie. A = a)
   } else if (sortBy === "popular") {
-    query = query.sort({ views: -1 });
+    query = query.sort({ views: -1 }); // descending
   }
 
   // execute query
@@ -109,6 +111,7 @@ const getStories = async (genreId, status, search, sortBy) => {
   return stories;
 };
 
+// UPDATE
 // update story
 const updateStory = async (id, updates) => {
   const updatedStory = await Story.findByIdAndUpdate(
@@ -122,23 +125,6 @@ const updateStory = async (id, updates) => {
   }
 
   return updatedStory;
-};
-
-// delete story
-const deleteStory = async (id) => {
-  await Chapter.updateMany(
-    { story: id },
-    { $set: { story: process.env.DELETED_STORY_ID } }
-  );
-
-  await User.updateMany({ favourites: id }, { $pull: { favourites: id } });
-
-  const story = await Story.findByIdAndDelete(id);
-  if (!story) {
-    throw new Error("Story not found");
-  }
-
-  return story;
 };
 
 // advance the current round (called when deadline is past)
@@ -247,6 +233,25 @@ const incrementViews = async (id) => {
     { $inc: { views: 1 } },
     { new: true }
   );
+  return story;
+};
+
+
+// DELETE
+// delete story
+const deleteStory = async (id) => {
+  await Chapter.updateMany(
+    { story: id },
+    { $set: { story: process.env.DELETED_STORY_ID } }
+  );
+
+  await User.updateMany({ favourites: id }, { $pull: { favourites: id } });
+
+  const story = await Story.findByIdAndDelete(id);
+  if (!story) {
+    throw new Error("Story not found");
+  }
+
   return story;
 };
 

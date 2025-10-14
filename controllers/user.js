@@ -84,6 +84,7 @@ const login = async (email, password) => {
   };
 };
 
+// READ
 // get user by id
 const getUserById = async (id) => {
   const user = await User.findById(id);
@@ -92,38 +93,6 @@ const getUserById = async (id) => {
     throw new Error("User not found");
   }
 
-  return user;
-};
-
-// add to favourites
-const addToFavourites = async (userId, storyId) => {
-  const user = await User.findById(userId);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const alreadyAdded = user.favourites.includes(storyId);
-  // check if already added to favourites
-  if (!alreadyAdded) {
-    user.favourites.push(storyId);
-  }
-
-  await user.save();
-  return user;
-};
-
-// remove from favourites
-const removeFromFavourites = async (userId, storyId) => {
-  const user = await User.findById(userId);
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  user.favourites = user.favourites.filter((fav) => fav.toString() !== storyId);
-
-  await user.save();
   return user;
 };
 
@@ -164,6 +133,53 @@ const getUsers = async () => {
   return users;
 };
 
+// UPDATE
+// add to favourites
+const addToFavourites = async (userId, storyId) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const alreadyAdded = user.favourites.includes(storyId);
+  // check if already added to favourites
+  if (!alreadyAdded) {
+    user.favourites.push(storyId);
+  }
+
+  await user.save();
+  return user;
+};
+
+// remove from favourites
+const removeFromFavourites = async (userId, storyId) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.favourites = user.favourites.filter((fav) => fav.toString() !== storyId);
+
+  await user.save();
+  return user;
+};
+
+// admin & account owner can use this function
+const updateUser = async (userId, updates) => {
+  if (updates.password) {
+    updates.password = bcrypt.hashSync(updates.password, 10);
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+    new: true,
+  });
+
+  return updatedUser;
+};
+
+// DELETE
 // ADMIN ONLY
 // delete user
 const deleteUser = async (userId) => {
@@ -190,19 +206,6 @@ const deleteUser = async (userId) => {
   }
 
   return deletedUser;
-};
-
-// admin & account owner can use this function
-const updateUser = async (userId, updates) => {
-  if (updates.password) {
-    updates.password = bcrypt.hashSync(updates.password, 10);
-  }
-
-  const updatedUser = await User.findByIdAndUpdate(userId, updates, {
-    new: true,
-  });
-
-  return updatedUser;
 };
 
 module.exports = {

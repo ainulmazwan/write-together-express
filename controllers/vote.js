@@ -1,22 +1,7 @@
 const Vote = require("../models/vote");
 const Story = require("../models/story");
 
-const getVote = async (userId, storyId) => {
-  const vote = await Vote.findOne({
-    user: userId,
-    story: storyId,
-  });
-  return vote;
-};
-
-const getVotesForSubmission = async (submissionId) => {
-  const votes = await Vote.find({
-    chapter: submissionId,
-  });
-
-  return votes;
-};
-
+//CREATE
 const addVote = async (userId, chapterId, storyId) => {
   const story = await Story.findById(storyId);
 
@@ -43,6 +28,26 @@ const addVote = async (userId, chapterId, storyId) => {
   return vote;
 };
 
+
+// READ
+const getVote = async (userId, storyId) => {
+  const vote = await Vote.findOne({
+    user: userId,
+    story: storyId,
+  });
+  return vote;
+};
+
+const getVotesForSubmission = async (submissionId) => {
+  const votes = await Vote.find({
+    chapter: submissionId,
+  });
+
+  return votes;
+};
+
+
+// DELETE
 const removeVote = async (userId, chapterId) => {
   const vote = await Vote.findOneAndDelete({
     user: userId,
