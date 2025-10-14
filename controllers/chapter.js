@@ -2,7 +2,6 @@ const Chapter = require("../models/chapter");
 const Story = require("../models/story");
 const Vote = require("../models/vote");
 
-
 // CREATE
 const addChapter = async (storyId, content, author, isOfficial) => {
   // check if user has added a submission before (if this is not chapter 1)
@@ -24,24 +23,17 @@ const addChapter = async (storyId, content, author, isOfficial) => {
     }
   }
 
-  // count how many official chapters in the story
-  const existingCount = await Chapter.countDocuments({
-    story,
-    isOfficial: true,
-  });
-
   const newChapter = new Chapter({
     story,
     content,
     author,
     isOfficial,
-    chapterNumber: existingCount + 1,
+    chapterNumber: story.currentRound.chapterNumber,
   });
 
   await newChapter.save();
   return newChapter;
 };
-
 
 // READ
 // get a specific chapter
@@ -84,7 +76,6 @@ const getSubmissionsForCurrentRound = async (storyId) => {
   return story.currentRound.submissions;
 };
 
-
 // UPDATE
 // update chapter
 const updateChapter = async (id, updates) => {
@@ -94,7 +85,6 @@ const updateChapter = async (id, updates) => {
   }
   return chapter;
 };
-
 
 // DELETE
 // delete chapter
