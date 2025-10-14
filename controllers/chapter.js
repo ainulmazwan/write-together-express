@@ -3,9 +3,18 @@ const Story = require("../models/story");
 const Vote = require("../models/vote");
 
 // CREATE
-const addChapter = async (storyId, content, author, isOfficial) => {
+const addChapter = async (
+  storyId,
+  content,
+  author,
+  isOfficial,
+  isFirst = false
+) => {
   // check if user has added a submission before (if this is not chapter 1)
   const story = await Story.findById(storyId);
+
+  const chapterNumber = isFirst ? 1 : story.chapters.length + 1;
+
   if (
     !isOfficial && // isOfficial = false : this is a submission
     story.currentRound.submissions.length > 0 // if there are no existing submissions yet, no need to do check
@@ -28,7 +37,7 @@ const addChapter = async (storyId, content, author, isOfficial) => {
     content,
     author,
     isOfficial,
-    chapterNumber: story.currentRound.chapterNumber,
+    chapterNumber,
   });
 
   await newChapter.save();

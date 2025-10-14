@@ -42,7 +42,13 @@ router.post("/", isValidUser, async (req, res) => {
     );
 
     // create first chapter
-    const chapter1 = await addChapter(story._id, chapterContent, author, true);
+    const chapter1 = await addChapter(
+      story._id,
+      chapterContent,
+      author,
+      true,
+      true
+    );
 
     // now add chapter to array
     story.chapters.push(chapter1._id);
