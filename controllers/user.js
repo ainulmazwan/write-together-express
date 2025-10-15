@@ -186,16 +186,14 @@ const deleteUser = async (userId) => {
   // remove user's votes
   await Vote.deleteMany({ user: userId });
 
-  const DELETED_USER_ID = "68e7b5b00fad7a2345ed7014";
-
   // unlink user's stories and chapters
   await Story.updateMany(
     { author: userId },
-    { $set: { author: DELETED_USER_ID } } // deleted user
+    { $set: { author: process.env.DELETED_USER_ID } } // deleted user
   );
   await Chapter.updateMany(
     { author: userId },
-    { $set: { author: DELETED_USER_ID } }
+    { $set: { author: process.env.DELETED_USER_ID } }
   );
 
   // remove user account
